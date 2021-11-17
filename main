@@ -1,0 +1,149 @@
+import os
+import shutil
+
+'''
+File manager. Once running main.py file you'll get 'help' which explains what command has what shortcut
+Delimiter by the default is space ' ' which separates command and aftergiven arguments
+'''
+
+def create_directory(name):
+	try:
+	    os.mkdir(name)
+	except FileExistsError:
+		print('This directory already exists!')
+
+def remove_directory(name):
+	try:
+		shutil.rmtree(name)
+	except FileNotFoundError:
+		print('No such directory!')
+
+def cd(direction):
+	#print(direction)
+	try:
+		if direction=='..':     #move up the directory
+			os.chdir('..')
+			print(os.getcwd())	
+		else:
+			os.chdir(direction)
+			print(os.getcwd())
+	except Exception:
+		print('No such file or directory')
+	
+	
+def create_file(name):
+	try:
+		open(name, "a")
+	except IsADirectoryError:
+		print(f"File <{name}> is a Directory")
+
+def write(name: str, *data: str):
+        text = " ".join(data)
+        text+='\n'                     #using \n in order to allow write data next time with the next line
+        try:
+            with open(name, "a") as file:
+                file.write(text)
+        except IsADirectoryError:
+            print(f"File <{filename}> is a directory")
+
+def see_content(name):
+	try:
+		with open(name, 'r', encoding='utf-8') as f:
+			print(f.read())
+	except FileNotFoundError:
+		print(f'File <{name}> does not exist')
+	except IsADirectoryError:
+		print('It is a directory')
+
+
+def remove_file(name):
+	try:
+		os.remove(name)
+	except FileNotFoundError:
+		print('No such file!')
+
+#function that uses commands interpretations to remind available commands
+def info():
+	for (key,value) in commands_interpretation.items():
+		print(f'<{key}> : "{value}"')
+
+def list_content():
+	try:
+		directories = [f for f in os.listdir() if os.path.isdir(f)]   #this list contains only directories in an active directory (using generator)
+		for el in os.listdir():
+			if el in directories:
+				print(f'/{el}')      #we add special slash symbol to show that some are directories
+			else:
+				print(el)      #these are files
+	except Exception:
+		print('Error aquired')
+
+def rename(old_name, new_name):
+	try:
+		os.rename(old_name, new_name)
+	except Exception:
+		print('Error: no such file or name occupied!')
+
+def copy_file(name, new_dir):
+	try:
+		shutil.copyfile(name, new_dir)
+	except:
+		print('Error aquired!')
+
+def move_file(name, destination):
+	try:
+		shutil.move(path_old, path_new)
+	except FileNotFoundError:
+		print(f"File <{filename}> does not exist")	
+
+#dictionary to use shortcuts with commands
+commands = {
+			"help": info,
+			"cd": cd,
+			"ls": list_content,
+			"mkdir": create_directory,
+			"rmdir": remove_directory,
+			"touch": create_file,
+			"rn": rename,
+			"cat": see_content,
+			"rm": remove_file,
+			"cp": copy_file,
+			"mv": move_file,
+			"wr": write,
+		}
+
+#dictionary for the help function to remind the user which commands toes this file manager has
+commands_interpretation = {
+			"help": "List commands",
+			"cd": "Moving between directories",
+			"ls": "List the content of the directory",
+			"mkdir": "Create a directory",
+			"rmdir": "Delete a directory",
+			"touch": "Create a file",
+			"rn": "Rename a file or a directory",
+			"cat": "Read the content of the file",
+			"rm": "Delete a file",
+			"cp": "Copy a file to a new directory",
+			"mv": "Move a directory or a file",
+			"wr": "Write in a file",
+			"exit": "Exit from the file processing"
+	}
+
+
+#main loop which takes input (command) and runs it
+def main():
+	info()
+	while True:
+		cmd = input("\n<>:").split(" ")
+		if cmd[0] == "exit":
+			break
+		try:
+			result = commands[cmd[0]]
+			result(*cmd[1:])
+		except:
+			print('No such command or wrong arguments!')
+
+
+
+if __name__=='__main__':
+	main()
